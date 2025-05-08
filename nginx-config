@@ -1,0 +1,15 @@
+server {
+    listen 80;
+    server_name www.avignon-edt.alcapitan.me avignon-edt.alcapitan.me;
+
+    location /api/ {
+        proxy_pass http://127.0.0.1:5000;
+
+        # Inclus une tolérance de 10 requêtes à mettre en attente
+        limit_req zone=api_limit burst=10 nodelay;
+    }
+
+    location / {
+        return 404;
+    }
+}

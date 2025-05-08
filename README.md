@@ -11,12 +11,21 @@ Set up a PostgreSQL on your server and create a database named `avignon-edt`, th
 psql -h your-server.com -U your-user -d avignon-edt -f init_db_psql.sql
 ```
 
-Next, set up a python virtual environment and install the required packages:
+Next, set up the project by installing the environment and dependencies. You can do this by running the following commands:
 
 ```bash
+sudo apt install python3 python3-venv
 python3 -m venv .venv
 source .venv/bin/activate
 pip install -r requirements.txt
+sudo chmod +x update_classroom_events.sh
+sudo chmod +x app.sh
+sudo cp systemd-service /etc/systemd/system/avignon-edt.service
+sudo systemctl daemon-reload
+sudo systemctl enable avignon-edt.service
+sudo cp nginx-config /etc/nginx/sites-available/avignon-edt
+sudo ln -s /etc/nginx/sites-available/avignon-edt /etc/nginx/sites-enabled/avignon-edt
+sudo systemctl restart nginx
 ```
 
 Then, create a `.env` file in the root directory of the project and add the following variables:
@@ -41,4 +50,25 @@ To fill the `classroom_events` table with the data from the APIs listed in `clas
 
 ```bash
 ./update_classroom_events.sh
+```
+
+To run the API, use the following command:
+
+```bash
+./app.sh
+```
+
+To make requests to the API, use the following command:
+
+```bash
+# On running locally
+curl http://localhost:5000/api/events?classroom=&ue=&group=&date=
+# On the official server
+curl https://avignon-edt.alcapitan.me/api/events?classroom=&ue=&group=&date=
+```
+
+To debug the systemd service (linked to `app.sh`), use the following command:
+
+```bash
+sudo journalctl -u avignon-edt.service
 ```

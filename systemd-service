@@ -1,0 +1,13 @@
+[Unit]
+Description=Avignon EDT API
+After=network.target
+
+[Service]
+User=alex
+WorkingDirectory=/var/www/avignon-edt/
+ExecStart=/var/www/avignon-edt/app.sh
+Environment="PYTHONUNBUFFERED=1"
+Restart=always
+
+[Install]
+WantedBy=multi-user.target
