@@ -19,6 +19,14 @@ def get_db_connection():
 
 app = Flask(__name__)
 
+@app.errorhandler(404)
+def not_found(error):
+    return jsonify({"error": "Endpoint introuvable."}), 404
+
+@app.errorhandler(500)
+def internal_error(error):
+    return jsonify({"error": "Erreur interne du serveur."}), 500
+
 @app.route('/api/list/<item>', methods=['GET'])
 def get_list(item):
     # Mappage entre les éléments d'URL et les colonnes SQL
