@@ -19,6 +19,38 @@ def get_db_connection():
 
 app = Flask(__name__)
 
+@app.route('/api/list/<item>', methods=['GET'])
+def get_list(item):
+    # Mappage entre les éléments d'URL et les colonnes SQL
+    valid_items = {
+        "ue": "ue_name",
+        "group": "UNNEST(class_group)",
+        "teacher": "UNNEST(teacher)",
+        "classroom": "classroom_id"
+    }
+
+    if item not in valid_items:
+        return jsonify({"error": "Item invalide. Utilisez 'ue', 'group', 'classroom' ou 'teacher'."}), 400
+
+    column_expr = valid_items[item]
+
+    query = f"""
+    SELECT DISTINCT {column_expr} AS value
+    FROM classroom_events
+    WHERE {column_expr} IS NOT NULL
+    ORDER BY value;
+    """
+
+    try:
+        with get_db_connection() as conn:
+            with conn.cursor() as cur:
+                cur.execute(query)
+                rows = cur.fetchall()
+                results = [row[0] for row in rows if row[0] is not None]
+        return jsonify(results)
+    except psycopg.Error as e:
+        return jsonify({"error": f"Erreur serveur lors de la récupération des {item}s : {e}"}), 500
+
 @app.route('/api/events', methods=['GET'])
 def get_events():
     classroom = request.args.get('classroom')
@@ -66,6 +98,8 @@ def get_events():
     """
     try:
         with get_db_connection() as conn:
+            if not conn:
+                return jsonify({"error": "Database connection failed"}), 500
             with conn.cursor() as cur:
                 cur.execute(query, params)
                 rows = cur.fetchall()
@@ -83,7 +117,7 @@ def get_events():
                     results.append(row_dict)
         return jsonify(results)
     except psycopg.Error as e:
-        return jsonify({"error": f"Erreur serveur lors de la récupération des événements + {e}"}), 500
+        return jsonify({"error": f"Erreur serveur lors de la récupération des événements : {e}"}), 500
 
 if __name__ == "__main__":
     app.run(host="0.0.0.0", port=5000)
