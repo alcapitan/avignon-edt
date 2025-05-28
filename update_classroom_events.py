@@ -20,17 +20,19 @@ def parse_event(vevent, classroom_id):
     # Parsing DESCRIPTION
     desc_lines = description.splitlines()
     ue_name = ''
-    teacher = ''
-    class_group = ''
+    teacher_list = []
+    class_group_list = []
     event_type = ''
 
     for line in desc_lines:
         if line.startswith('Matière'):
             ue_name = line.split(':', 1)[1].strip()
         elif line.startswith('Enseignant'):
-            teacher = line.split(':', 1)[1].strip()
-        elif line.startswith('TD'):
-            class_group = line.split(':', 1)[1].strip()
+            teacher_string = line.split(':', 1)[1].strip()
+            teacher_list = [teacher.strip() for teacher in teacher_string.split(',')]
+        elif line.startswith('TD') or line.startswith('Promotion'):
+            class_group_string = line.split(':', 1)[1].strip()
+            class_group_list = [group.strip() for group in class_group_string.split(',')]
         elif line.startswith('Type'):
             event_type = line.split(':', 1)[1].strip()
 
@@ -38,8 +40,8 @@ def parse_event(vevent, classroom_id):
         'event_id': uid,
         'classroom_id': classroom_id,
         'ue_name': ue_name,
-        'teacher': teacher,
-        'class_group': class_group,
+        'teacher': teacher_list,
+        'class_group': class_group_list,
         'date_update': date_update,
         'date_start': dtstart,
         'date_end': dtend,
@@ -59,6 +61,9 @@ def updateClassroomEvents():
         # 1. Récupérer toutes les salles et liens
         cur.execute("SELECT classroom_id, link FROM classroom_fetch_links")
         classrooms = cur.fetchall()
+        if not classrooms:
+            print("Aucune salle trouvée dans la base de données.")
+            return
 
         for classroom_id, link in classrooms:
             print(f"Fetching for classroom: {classroom_id}")
@@ -73,7 +78,7 @@ def updateClassroomEvents():
 
             events = []
             for component in cal.walk():
-                if component.name == "VEVENT":
+                if component.name == "VEVENT" and not component.get('UID').startswith("Ferie-"):
                     event_data = parse_event(component, classroom_id)
                     events.append(event_data)
 

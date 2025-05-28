@@ -5,7 +5,7 @@ After=network.target
 [Service]
 User=alex
 WorkingDirectory=/var/www/avignon-edt/
-ExecStart=/var/www/avignon-edt/app.sh
+ExecStart=/var/www/avignon-edt/avignon-edt
 Environment="PYTHONUNBUFFERED=1"
 Restart=always
 

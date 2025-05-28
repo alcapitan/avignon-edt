@@ -55,7 +55,7 @@ To fill the `classroom_events` table with the data from the APIs listed in `clas
 To run the API, use the following command:
 
 ```bash
-./app.sh
+./avignon-edt
 ```
 
 To make requests to the API, use the following command:
@@ -67,7 +67,9 @@ curl http://localhost:5000/api/events?classroom=&ue=&group=&date=
 curl https://avignon-edt.alcapitan.me/api/events?classroom=&ue=&group=&date=
 ```
 
-To debug the systemd service (linked to `app.sh`), use the following command:
+The date parameter is in the format `YYYY-MM-DD`, and the other parameters must exactly match the values in the `classroom_events` table.
+
+To debug the systemd service, use the following command:
 
 ```bash
 sudo journalctl -u avignon-edt.service

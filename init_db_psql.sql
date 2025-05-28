@@ -35,8 +35,8 @@ CREATE TABLE classroom_events (
     event_id VARCHAR(100) PRIMARY KEY, -- Id du créneau
     classroom_id VARCHAR(100) REFERENCES classroom_fetch_links(classroom_id) ON DELETE CASCADE, -- Numéro de salle
     ue_name VARCHAR(100) NOT NULL, -- Nom de l'UE
-    teacher TEXT, -- Nom de l'enseignant
-    class_group TEXT, -- Promo et groupe d'étudiants
+    teacher TEXT[], -- Nom des enseignants (tableau de chaînes de caractères)
+    class_group TEXT[], -- Promo et groupe d'étudiants
     date_update TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP, -- Date pour lequel ce créneau a été lu dans la source
     date_start TIMESTAMP, -- Date de début du créneau
     date_end TIMESTAMP, -- Date de fin du créneau
@@ -47,7 +47,5 @@ CREATE TABLE classroom_events (
 -- Indexes sur la table classroom_events pour améliorer les performances
 CREATE INDEX idx_classroom_id ON classroom_events(classroom_id);
 CREATE INDEX idx_ue_name ON classroom_events(ue_name);
-CREATE INDEX idx_class_group ON classroom_events(class_group);
-CREATE INDEX idx_teacher ON classroom_events(teacher);
 CREATE INDEX idx_date_start ON classroom_events(date_start);
 CREATE INDEX idx_date_end ON classroom_events(date_end);
